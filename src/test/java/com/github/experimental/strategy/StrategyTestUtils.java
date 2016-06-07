@@ -14,6 +14,8 @@ import org.hibernate.mapping.PersistentClass;
 import org.hibernate.mapping.Property;
 import org.hibernate.mapping.Table;
 import org.hibernate.mapping.UniqueKey;
+import org.hibernate.tool.hbm2ddl.SchemaUpdate;
+import org.hibernate.tool.hbm2ddl.Target;
 
 import com.github.fluent.hibernate.internal.util.InternalUtils;
 
@@ -79,9 +81,17 @@ public final class StrategyTestUtils {
             result.setNamingStrategy(strategy);
         }
 
-        result.buildMapping();
+        result.buildMappings();
 
         return result;
+    }
+
+    public static void logSchemaUpdate(Configuration configuration) {
+        SchemaUpdate schemaUpdate = new SchemaUpdate(configuration);
+
+        schemaUpdate.setDelimiter(";");
+        schemaUpdate.setFormat(true);
+        schemaUpdate.execute(Target.SCRIPT);
     }
 
 }
