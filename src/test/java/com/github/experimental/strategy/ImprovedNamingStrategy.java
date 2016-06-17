@@ -10,7 +10,7 @@ import org.hibernate.internal.util.StringHelper;
 
 /**
  * An improved naming strategy that prefers embedded underscores to mixed case names
- * 
+ *
  * @see DefaultNamingStrategy the default strategy
  * @author Gavin King
  */
@@ -75,6 +75,9 @@ public class ImprovedNamingStrategy implements NamingStrategy, Serializable {
      */
     @Override
     public String joinKeyColumnName(String joinedColumn, String joinedTable) {
+
+        System.out.println("joinKeyColumnName");
+
         return columnName(joinedColumn);
     }
 
@@ -98,8 +101,13 @@ public class ImprovedNamingStrategy implements NamingStrategy, Serializable {
      */
     @Override
     public String logicalColumnName(String columnName, String propertyName) {
-        return StringHelper.isNotEmpty(columnName) ? columnName
+
+        String result = StringHelper.isNotEmpty(columnName) ? columnName
                 : StringHelper.unqualify(propertyName);
+
+        System.out.println("logicalColumnName: " + propertyName + " = " + result);
+
+        return result;
     }
 
     /**
@@ -110,6 +118,9 @@ public class ImprovedNamingStrategy implements NamingStrategy, Serializable {
     @Override
     public String logicalCollectionTableName(String tableName, String ownerEntityTable,
             String associatedEntityTable, String propertyName) {
+
+        System.out.println("logicalCollectionTableName");
+
         if (tableName != null) {
             return tableName;
         } else {
@@ -128,6 +139,9 @@ public class ImprovedNamingStrategy implements NamingStrategy, Serializable {
     @Override
     public String logicalCollectionColumnName(String columnName, String propertyName,
             String referencedColumn) {
+
+        System.out.println("logicalCollectionColumnName");
+
         return StringHelper.isNotEmpty(columnName) ? columnName
                 : StringHelper.unqualify(propertyName) + "_" + referencedColumn;
     }

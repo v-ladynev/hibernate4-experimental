@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.NamingStrategy;
+import org.hibernate.mapping.Collection;
 import org.hibernate.mapping.Column;
 import org.hibernate.mapping.Component;
 import org.hibernate.mapping.PersistentClass;
@@ -29,6 +30,15 @@ public final class StrategyTestUtils {
 
     }
 
+    public static String getColumnName(Configuration configuration, Class<?> persistent,
+            String propertyName) {
+        PersistentClass binding = configuration.getClassMapping(persistent.getName());
+        assertThat(binding).isNotNull();
+        Column result = StrategyTestUtils.getColumn(binding, propertyName);
+        assertThat(result).isNotNull();
+        return result.getName();
+    }
+
     public static Column getColumn(PersistentClass persistentClass, String propertyName) {
         Property property = persistentClass.getProperty(propertyName);
         assertThat(property).isNotNull();
@@ -37,7 +47,6 @@ public final class StrategyTestUtils {
 
     public static List<String> getComponentColumnNames(PersistentClass persistentClass,
             String componentPropertyName) {
-
         Property componentBinding = persistentClass.getProperty(componentPropertyName);
         assertThat(componentBinding).isNotNull();
 
@@ -45,7 +54,11 @@ public final class StrategyTestUtils {
         return getColumNames(component.getColumnIterator());
     }
 
-    public static List<String> getColumNames(Iterator<?> columnIterator) {
+    public static List<String> getColumNames(Table table) {
+        return getColumNames(table.getColumnIterator());
+    }
+
+    private static List<String> getColumNames(Iterator<?> columnIterator) {
         ArrayList<String> result = InternalUtils.CollectionUtils.newArrayList();
 
         while (columnIterator.hasNext()) {
@@ -69,6 +82,20 @@ public final class StrategyTestUtils {
         return result;
     }
 
+    public static Table getTable(Configuration configuration, Class<?> persistent) {
+        PersistentClass result = configuration.getClassMapping(persistent.getName());
+        assertThat(result).isNotNull();
+        return result.getTable();
+    }
+
+    public static Table getCollectionTable(Configuration configuration, Class<?> persistent,
+            String propertyName) {
+        Collection result = configuration
+                .getCollectionMapping(persistent.getName() + "." + propertyName);
+        assertThat(result).isNotNull();
+        return result.getCollectionTable();
+    }
+
     public static Configuration createConfiguration(NamingStrategy strategy,
             Class<?>... annotatedClasses) {
         Configuration result = new Configuration();
@@ -88,7 +115,6 @@ public final class StrategyTestUtils {
 
     public static void logSchemaUpdate(Configuration configuration) {
         SchemaUpdate schemaUpdate = new SchemaUpdate(configuration);
-
         schemaUpdate.setDelimiter(";");
         schemaUpdate.setFormat(true);
         schemaUpdate.execute(Target.SCRIPT);
