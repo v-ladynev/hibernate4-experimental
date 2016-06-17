@@ -29,13 +29,13 @@ import org.junit.Test;
 
 public class ImprovedNamingStrategyTest {
 
-    private static final Class<?>[] PERISTENTS = new Class<?>[] { AuthorTable.class, Book.class };
+    private static final Class<?>[] ENTITIES = new Class<?>[] { AuthorTable.class, Book.class };
 
     private static Configuration configuration;
 
     @BeforeClass
     public static void setUp() {
-        configuration = createConfiguration(ImprovedNamingStrategy.INSTANCE, PERISTENTS);
+        configuration = createConfiguration(ImprovedNamingStrategy.INSTANCE, ENTITIES);
         StrategyTestUtils.logSchemaUpdate(configuration);
     }
 
