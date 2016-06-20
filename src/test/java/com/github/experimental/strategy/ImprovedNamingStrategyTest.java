@@ -8,18 +8,24 @@ import static com.github.experimental.strategy.StrategyTestUtils.getTable;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Column;
+import javax.persistence.DiscriminatorColumn;
 import javax.persistence.ElementCollection;
 import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.OrderColumn;
 import javax.persistence.Version;
 
 import org.hibernate.cfg.Configuration;
@@ -29,7 +35,8 @@ import org.junit.Test;
 
 public class ImprovedNamingStrategyTest {
 
-    private static final Class<?>[] ENTITIES = new Class<?>[] { AuthorTable.class, Book.class };
+    private static final Class<?>[] ENTITIES = new Class<?>[] { AuthorTable.class, Book.class,
+            Customer.class, ValuedCustomer.class };
 
     private static Configuration configuration;
 
@@ -51,8 +58,8 @@ public class ImprovedNamingStrategyTest {
     @Test
     public void propertyToColumnName() {
         Table authorTable = getTable(configuration, AuthorTable.class);
-        assertThat(getColumNames(authorTable)).containsOnly("author_pid", "info", "best_book",
-                "type", "version");
+        assertThat(getColumNames(authorTable)).containsOnly("author_pid", "author_info",
+                "best_book", "author_type", "author_version");
 
         String bookPid = getColumnName(configuration, Book.class, "pid");
         assertThat(bookPid).isEqualTo("pid");
@@ -111,8 +118,37 @@ public class ImprovedNamingStrategyTest {
         assertThat(elementCollectionAuthorInfo.getName()).isEqualTo(
                 "improved_naming_strategy_test$author_table_element_collection_author_info");
 
-        assertThat(getColumNames(elementCollectionAuthorInfo))
-                .containsOnly("improved_naming_strategy_test$author_table", "best_book", "info");
+        assertThat(getColumNames(elementCollectionAuthorInfo)).containsOnly(
+                "improved_naming_strategy_test$author_table", "best_book", "author_info");
+    }
+
+    @Test
+    public void discriminatorColumn() {
+        Table customerTable = getTable(configuration, Customer.class);
+        assertThat(getColumNames(customerTable)).containsOnly("pid", "dtype");
+    }
+
+    @Test
+    public void orderColumn() {
+        Table booksFour = getCollectionTable(configuration, AuthorTable.class, "booksOrdered");
+
+        assertThat(booksFour.getName())
+                .isEqualTo("improved_naming_strategy_test$author_table_books_ordered");
+
+        assertThat(getColumNames(booksFour)).containsOnly(
+                "improved_naming_strategy_test$author_table", "books_ordered",
+                "books_ordered_order");
+    }
+
+    @Test
+    public void mapKey() {
+        Table booksMap = getCollectionTable(configuration, AuthorTable.class, "booksMap");
+
+        assertThat(booksMap.getName())
+                .isEqualTo("improved_naming_strategy_test$author_table_books_map");
+
+        assertThat(getColumNames(booksMap)).containsOnly(
+                "improved_naming_strategy_test$author_table", "books_map", "books_map_key");
     }
 
     @Entity
@@ -134,14 +170,22 @@ public class ImprovedNamingStrategyTest {
         @JoinColumn
         private List<Book> booksThree;
 
+        @OneToMany
+        @OrderColumn
+        private List<Book> booksOrdered;
+
+        @ElementCollection
+        @MapKeyColumn
+        private Map<String, String> booksMap;
+
         @ElementCollection
         private List<String> bookTitles;
 
         @Enumerated
-        private AuthorType type;
+        private AuthorType authorType;
 
         @Version
-        private Integer version;
+        private Integer authorVersion;
 
         @ElementCollection
         @Embedded
@@ -161,7 +205,7 @@ public class ImprovedNamingStrategyTest {
     public static class AuthorInfo {
 
         @Column
-        private String info;
+        private String authorInfo;
 
         @OneToOne
         private Book bestBook;
@@ -170,6 +214,21 @@ public class ImprovedNamingStrategyTest {
 
     public enum AuthorType {
         FAMOUS, NOT_FAMOUS
+    }
+
+    @Entity
+    @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+    @DiscriminatorColumn
+    public static class Customer {
+
+        @Id
+        private Long pid;
+
+    }
+
+    @Entity
+    public static class ValuedCustomer extends Customer {
+
     }
 
 }

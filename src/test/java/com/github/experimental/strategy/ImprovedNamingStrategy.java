@@ -50,6 +50,7 @@ public class ImprovedNamingStrategy implements NamingStrategy, Serializable {
      */
     @Override
     public String columnName(String columnName) {
+        System.out.println(columnName);
         return addUnderscores(columnName);
     }
 
@@ -67,6 +68,14 @@ public class ImprovedNamingStrategy implements NamingStrategy, Serializable {
     @Override
     public String collectionTableName(String ownerEntity, String ownerEntityTable,
             String associatedEntity, String associatedEntityTable, String propertyName) {
+        /*
+        System.out.println(String.format(
+                "collectionTableName: ownerEntity: %s, "
+                        + "ownerEntityTable: %s, associatedEntity: %s, associatedEntityTable: %s, "
+                        + "propertyName: %s",
+                ownerEntity, ownerEntityTable, associatedEntity, associatedEntityTable,
+                propertyName));
+        */
         return tableName(ownerEntityTable + '_' + propertyToColumnName(propertyName));
     }
 
@@ -75,9 +84,8 @@ public class ImprovedNamingStrategy implements NamingStrategy, Serializable {
      */
     @Override
     public String joinKeyColumnName(String joinedColumn, String joinedTable) {
-
-        System.out.println("joinKeyColumnName");
-
+        /*System.out.println(String.format("joinKeyColumnName: joinedColumn: %s, joinedTable: %s",
+                joinedColumn, joinedTable));*/
         return columnName(joinedColumn);
     }
 
@@ -87,6 +95,11 @@ public class ImprovedNamingStrategy implements NamingStrategy, Serializable {
     @Override
     public String foreignKeyColumnName(String propertyName, String propertyEntityName,
             String propertyTableName, String referencedColumnName) {
+        /*
+        System.out.println(String.format(
+                "foreignKeyColumnName:  propertyName: %s\n propertyEntityName: %s\n propertyTableName: %s\n referencedColumnName: %s\n",
+                propertyName, propertyEntityName, propertyTableName, referencedColumnName));
+        */
         String header = propertyName != null ? StringHelper.unqualify(propertyName)
                 : propertyTableName;
         if (header == null) {
@@ -105,7 +118,7 @@ public class ImprovedNamingStrategy implements NamingStrategy, Serializable {
         String result = StringHelper.isNotEmpty(columnName) ? columnName
                 : StringHelper.unqualify(propertyName);
 
-        System.out.println("logicalColumnName: " + propertyName + " = " + result);
+        // System.out.println("logicalColumnName: " + propertyName + " = " + result);
 
         return result;
     }
@@ -119,7 +132,7 @@ public class ImprovedNamingStrategy implements NamingStrategy, Serializable {
     public String logicalCollectionTableName(String tableName, String ownerEntityTable,
             String associatedEntityTable, String propertyName) {
 
-        System.out.println("logicalCollectionTableName");
+        // System.out.println("logicalCollectionTableName: " + tableName + " " + propertyName);
 
         if (tableName != null) {
             return tableName;
@@ -140,7 +153,7 @@ public class ImprovedNamingStrategy implements NamingStrategy, Serializable {
     public String logicalCollectionColumnName(String columnName, String propertyName,
             String referencedColumn) {
 
-        System.out.println("logicalCollectionColumnName");
+        // System.out.println("logicalCollectionColumnName");
 
         return StringHelper.isNotEmpty(columnName) ? columnName
                 : StringHelper.unqualify(propertyName) + "_" + referencedColumn;

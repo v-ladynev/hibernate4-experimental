@@ -34,7 +34,7 @@ public final class StrategyTestUtils {
             String propertyName) {
         PersistentClass binding = configuration.getClassMapping(persistent.getName());
         assertThat(binding).isNotNull();
-        Column result = StrategyTestUtils.getColumn(binding, propertyName);
+        Column result = getColumn(binding, propertyName);
         assertThat(result).isNotNull();
         return result.getName();
     }
